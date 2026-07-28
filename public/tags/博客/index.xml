@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>博客 on 卓越的博客</title><link>https://zengzhuoyue.github.io/tags/%E5%8D%9A%E5%AE%A2/</link><description>Recent content in 博客 on 卓越的博客</description><generator>Hugo</generator><language>en</language><lastBuildDate>Tue, 28 Jul 2026 15:30:00 +0800</lastBuildDate><atom:link href="https://zengzhuoyue.github.io/tags/%E5%8D%9A%E5%AE%A2/index.xml" rel="self" type="application/rss+xml"/><item><title>我的第一篇文章</title><link>https://zengzhuoyue.github.io/posts/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</link><pubDate>Tue, 28 Jul 2026 15:30:00 +0800</pubDate><guid>https://zengzhuoyue.github.io/posts/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</guid><description>&lt;h2 id="欢迎来到我的博客"&gt;欢迎来到我的博客&lt;/h2&gt;
+&lt;p&gt;这是我的第一篇博客文章！本博客使用 &lt;strong&gt;Hugo&lt;/strong&gt; 静态网站生成器搭建，主题为 &lt;strong&gt;PaperMod&lt;/strong&gt;，托管在 &lt;strong&gt;GitHub Pages&lt;/strong&gt; 上。&lt;/p&gt;
+&lt;h3 id="关于-hugo"&gt;关于 Hugo&lt;/h3&gt;
+&lt;p&gt;Hugo 是一个用 Go 语言编写的静态网站生成器，速度极快。它支持 Markdown 格式编写内容，非常适合技术人员搭建个人博客。&lt;/p&gt;
+&lt;h3 id="博客功能"&gt;博客功能&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;简洁优雅的界面设计&lt;/li&gt;
+&lt;li&gt;支持分类和标签&lt;/li&gt;
+&lt;li&gt;RSS 订阅&lt;/li&gt;
+&lt;li&gt;代码高亮&lt;/li&gt;
+&lt;li&gt;自动部署&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;感谢你的访问，更多精彩内容即将到来！&lt;/p&gt;</description></item></channel></rss>
