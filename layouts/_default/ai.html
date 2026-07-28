@@ -1,0 +1,557 @@
+{{- define "main" }}
+<style>
+:root {
+  --ai-bg: #0f1117; --ai-surface: #1a1d28; --ai-border: #2a2e3a;
+  --ai-text: #e4e6ed; --ai-muted: #8b8fa3; --ai-accent: #6c8cff;
+  --ai-accent-hover: #8aa4ff; --ai-danger: #ff5c5c;
+  --ai-radius: 10px;
+}
+body { background: var(--ai-bg) !important; color: var(--ai-text) !important; }
+header.main-header, .header, nav, #top header { display: none !important; }
+.main { max-width: 100% !important; padding: 0 !important; }
+.footer, footer { display: none !important; }
+.ai-wrap { max-width: 960px; margin: 0 auto; padding: 20px; }
+.ai-wrap * { box-sizing: border-box; }
+.ai-wrap h1 { font-size: 28px; margin-bottom: 4px; text-align: center; }
+.ai-wrap .sub { color: var(--ai-muted); font-size: 14px; text-align: center; margin-bottom: 20px; }
+.key-bar {
+  background: var(--ai-surface); border: 1px solid var(--ai-border);
+  border-radius: var(--ai-radius); padding: 12px 16px; margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.key-bar label { font-size: 13px; color: var(--ai-muted); white-space: nowrap; }
+.key-bar input {
+  flex: 1; min-width: 200px;
+  background: #0f1117; border: 1px solid var(--ai-border); border-radius: 6px;
+  padding: 8px 12px; color: var(--ai-text); font-size: 13px;
+  font-family: monospace;
+}
+.key-bar input:focus { outline: none; border-color: var(--ai-accent); }
+.key-bar .status { font-size: 12px; }
+.tabs {
+  display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 16px;
+  background: var(--ai-surface); border-radius: var(--ai-radius);
+  padding: 4px; border: 1px solid var(--ai-border);
+}
+.tab-btn {
+  flex: 1; min-width: 80px;
+  padding: 8px 12px; border: none; border-radius: 6px;
+  background: transparent; color: var(--ai-muted); cursor: pointer;
+  font-size: 13px; transition: all .2s; text-align: center;
+}
+.tab-btn:hover { color: var(--ai-text); }
+.tab-btn.active { background: var(--ai-accent); color: #fff; }
+.panel {
+  background: var(--ai-surface); border: 1px solid var(--ai-border);
+  border-radius: var(--ai-radius); padding: 20px; display: none;
+}
+.panel.active { display: block; }
+.form-group { margin-bottom: 14px; }
+.form-group label {
+  display: block; font-size: 13px; color: var(--ai-muted); margin-bottom: 4px;
+}
+.form-group textarea,.form-group input,.form-group select {
+  width: 100%;
+  background: #0f1117; border: 1px solid var(--ai-border); border-radius: 6px;
+  padding: 8px 12px; color: var(--ai-text); font-size: 14px;
+  font-family: inherit;
+}
+.form-group textarea:focus,.form-group input:focus,.form-group select:focus {
+  outline: none; border-color: var(--ai-accent);
+}
+.form-group textarea { min-height: 80px; resize: vertical; }
+.form-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+.btn {
+  background: var(--ai-accent); color: #fff; border: none;
+  border-radius: 6px; padding: 10px 20px; font-size: 14px;
+  cursor: pointer; transition: background .2s; font-weight: 600;
+}
+.btn:hover { background: var(--ai-accent-hover); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-danger { background: var(--ai-danger); }
+.btn-danger:hover { background: #ff7373; }
+.result {
+  margin-top: 16px; border-top: 1px solid var(--ai-border); padding-top: 16px;
+}
+.file-upload {
+  border: 2px dashed var(--ai-border); border-radius: 6px;
+  padding: 20px; text-align: center; cursor: pointer;
+  transition: border-color .2s; position: relative;
+}
+.file-upload:hover { border-color: var(--ai-accent); }
+.file-upload input[type=file] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer;
+}
+.file-upload .hint { color: var(--ai-muted); font-size: 13px; }
+.file-upload .preview { max-height: 120px; margin-top: 8px; border-radius: 6px; display: none; }
+.chat-box {
+  background: #0f1117; border: 1px solid var(--ai-border);
+  border-radius: 6px; padding: 12px; min-height: 200px;
+  max-height: 400px; overflow-y: auto; margin-bottom: 10px;
+  white-space: pre-wrap; font-size: 14px; line-height: 1.6;
+}
+.chat-msg { margin-bottom: 10px; }
+.chat-msg .role { font-size: 12px; margin-bottom: 2px; }
+.chat-msg.user .role { color: var(--ai-accent); }
+.chat-msg.assistant .role { color: #4ade80; }
+.chat-input-row { display: flex; gap: 8px; }
+.chat-input-row textarea { flex: 1; min-height: 44px; max-height: 120px; }
+.image-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px; margin-top: 8px;
+}
+.image-grid img { width: 100%; border-radius: 6px; cursor: pointer; }
+.progress-bar {
+  height: 4px; background: var(--ai-border); border-radius: 2px;
+  margin: 8px 0; overflow: hidden;
+}
+.progress-bar .fill {
+  height: 100%; background: var(--ai-accent); border-radius: 2px;
+  transition: width .5s;
+}
+.toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--ai-surface); border: 1px solid var(--ai-border);
+  border-radius: var(--ai-radius); padding: 10px 20px;
+  font-size: 14px; z-index: 999; display: none;
+}
+.toast.show { display: block; }
+@media (max-width: 600px) {
+  .form-row { grid-template-columns: 1fr; }
+  .tab-btn { min-width: 60px; font-size: 12px; padding: 6px 8px; }
+}
+</style>
+
+<div class="ai-wrap">
+<h1>AI 工具箱</h1>
+<div class="sub">Text &middot; Image &middot; Video &mdash; Powered by Agnes AI</div>
+
+<div class="key-bar">
+  <label>API Key</label>
+  <input type="password" id="apiKey" placeholder="sk-..." style="flex:1;min-width:200px;background:#0f1117;border:1px solid var(--ai-border);border-radius:6px;padding:8px 12px;color:var(--ai-text);font-size:13px;font-family:monospace">
+  <span class="status" id="keyStatus" style="font-size:12px">未配置</span>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab-btn active" data-tab="chat">文本对话</button>
+  <button class="tab-btn" data-tab="t2i">文生图</button>
+  <button class="tab-btn" data-tab="i2i">图生图</button>
+  <button class="tab-btn" data-tab="edit">图片编辑</button>
+  <button class="tab-btn" data-tab="t2v">文生视频</button>
+  <button class="tab-btn" data-tab="i2v">图生视频</button>
+</div>
+
+<!-- Text Chat -->
+<div class="panel active" id="panel-chat">
+  <div class="form-row">
+    <div class="form-group">
+      <label>模型</label>
+      <select id="chat-model">
+        <option value="agnes-2.0-flash">agnes-2.0-flash</option>
+        <option value="agnes-1.5-flash">agnes-1.5-flash</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>温度</label>
+      <input type="number" id="chat-temp" value="0.7" min="0" max="2" step="0.1">
+    </div>
+  </div>
+  <div class="form-group">
+    <label>System Prompt</label>
+    <textarea id="chat-system" placeholder="可选：设定 AI 的角色和行为..."></textarea>
+  </div>
+  <div class="chat-box" id="chatBox">
+    <div class="chat-msg assistant"><div class="role">AI</div><div class="content">你好！有什么可以帮你的？</div></div>
+  </div>
+  <div class="chat-input-row">
+    <textarea id="chat-input" placeholder="输入你的问题..." rows="1" style="flex:1;min-height:44px;background:#0f1117;border:1px solid var(--ai-border);border-radius:6px;padding:8px 12px;color:var(--ai-text);font-size:14px;font-family:inherit"></textarea>
+    <button class="btn" id="chat-send">发送</button>
+    <button class="btn btn-danger" id="chat-clear">清空</button>
+  </div>
+</div>
+
+<!-- Text-to-Image -->
+<div class="panel" id="panel-t2i">
+  <div class="form-group">
+    <label>模型</label>
+    <select id="t2i-model">
+      <option value="agnes-image-2.1-flash">agnes-image-2.1-flash</option>
+      <option value="agnes-image-2.0-flash">agnes-image-2.0-flash</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>描述 (Prompt)</label>
+    <textarea id="t2i-prompt" placeholder="描述你想生成的图片..."></textarea>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>尺寸</label>
+      <select id="t2i-size">
+        <option value="1024x1024">1024x1024</option>
+        <option value="1024x768" selected>1024x768</option>
+        <option value="768x1024">768x1024</option>
+        <option value="1280x720">1280x720</option>
+        <option value="720x1280">720x1280</option>
+        <option value="512x512">512x512</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>数量</label>
+      <select id="t2i-n">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="4">4</option>
+      </select>
+    </div>
+  </div>
+  <button class="btn" id="t2i-btn">生成图片</button>
+  <div class="result" id="t2i-result"></div>
+</div>
+
+<!-- Image-to-Image -->
+<div class="panel" id="panel-i2i">
+  <div class="form-group">
+    <label>模型</label>
+    <select id="i2i-model">
+      <option value="agnes-image-2.1-flash">agnes-image-2.1-flash</option>
+      <option value="agnes-image-2.0-flash">agnes-image-2.0-flash</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>上传参考图片</label>
+    <div class="file-upload" id="i2i-upload">
+      <input type="file" accept="image/*">
+      <div class="hint">点击或拖拽上传图片</div>
+      <img class="preview" id="i2i-preview">
+    </div>
+  </div>
+  <div class="form-group">
+    <label>变换描述</label>
+    <textarea id="i2i-prompt" placeholder="描述如何变换这张图片..."></textarea>
+  </div>
+  <div class="form-group">
+    <label>尺寸</label>
+    <select id="i2i-size">
+      <option value="1024x1024">1024x1024</option>
+      <option value="1024x768" selected>1024x768</option>
+      <option value="768x1024">768x1024</option>
+    </select>
+  </div>
+  <button class="btn" id="i2i-btn">生成</button>
+  <div class="result" id="i2i-result"></div>
+</div>
+
+<!-- Image Edit -->
+<div class="panel" id="panel-edit">
+  <div class="form-group">
+    <label>模型</label>
+    <select id="edit-model">
+      <option value="agnes-image-2.1-flash">agnes-image-2.1-flash</option>
+      <option value="agnes-image-2.0-flash">agnes-image-2.0-flash</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>上传要编辑的图片</label>
+    <div class="file-upload" id="edit-upload">
+      <input type="file" accept="image/*">
+      <div class="hint">点击或拖拽上传图片</div>
+      <img class="preview" id="edit-preview">
+    </div>
+  </div>
+  <div class="form-group">
+    <label>编辑指令</label>
+    <textarea id="edit-prompt" placeholder="描述如何修改这张图片..."></textarea>
+  </div>
+  <div class="form-group">
+    <label>尺寸</label>
+    <select id="edit-size">
+      <option value="1024x1024">1024x1024</option>
+      <option value="1024x768" selected>1024x768</option>
+      <option value="768x1024">768x1024</option>
+    </select>
+  </div>
+  <button class="btn" id="edit-btn">编辑图片</button>
+  <div class="result" id="edit-result"></div>
+</div>
+
+<!-- Text-to-Video -->
+<div class="panel" id="panel-t2v">
+  <div class="form-group">
+    <label>视频描述 (Prompt)</label>
+    <textarea id="t2v-prompt" placeholder="描述你想生成的视频内容..."></textarea>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>宽度</label>
+      <select id="t2v-width">
+        <option value="1152">1152</option>
+        <option value="768">768</option>
+        <option value="512">512</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>高度</label>
+      <select id="t2v-height">
+        <option value="768">768</option>
+        <option value="1152">1152</option>
+        <option value="512">512</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>帧数</label>
+      <input type="number" id="t2v-frames" value="81" min="17" max="257" step="8">
+    </div>
+    <div class="form-group">
+      <label>帧率</label>
+      <input type="number" id="t2v-fps" value="24" min="8" max="60">
+    </div>
+  </div>
+  <button class="btn" id="t2v-btn">生成视频</button>
+  <div class="result" id="t2v-result"></div>
+</div>
+
+<!-- Image-to-Video -->
+<div class="panel" id="panel-i2v">
+  <div class="form-group">
+    <label>上传参考图片</label>
+    <div class="file-upload" id="i2v-upload">
+      <input type="file" accept="image/*">
+      <div class="hint">点击或拖拽上传图片</div>
+      <img class="preview" id="i2v-preview">
+    </div>
+  </div>
+  <div class="form-group">
+    <label>视频描述 (Prompt)</label>
+    <textarea id="i2v-prompt" placeholder="描述视频中的动态效果..."></textarea>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>宽度</label>
+      <select id="i2v-width">
+        <option value="1152">1152</option>
+        <option value="768">768</option>
+        <option value="512">512</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>高度</label>
+      <select id="i2v-height">
+        <option value="768">768</option>
+        <option value="1152">1152</option>
+        <option value="512">512</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>帧数</label>
+      <input type="number" id="i2v-frames" value="81" min="17" max="257" step="8">
+    </div>
+    <div class="form-group">
+      <label>帧率</label>
+      <input type="number" id="i2v-fps" value="24" min="8" max="60">
+    </div>
+  </div>
+  <button class="btn" id="i2v-btn">生成视频</button>
+  <div class="result" id="i2v-result"></div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API_BASE = 'https://apihub.agnes-ai.com/v1';
+let apiKey = localStorage.getItem('agnes_api_key') || '';
+const keyInput = document.getElementById('apiKey');
+const keyStatus = document.getElementById('keyStatus');
+if (apiKey) { keyInput.value = apiKey; keyStatus.textContent = '已配置'; keyStatus.style.color = '#4ade80'; }
+keyInput.addEventListener('input', () => {
+  apiKey = keyInput.value.trim();
+  localStorage.setItem('agnes_api_key', apiKey);
+  keyStatus.textContent = apiKey ? '已配置' : '未配置';
+  keyStatus.style.color = apiKey ? '#4ade80' : '#8b8fa3';
+});
+
+function toast(msg) {
+  const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+const $ = id => document.getElementById(id);
+
+// File upload
+function setupUpload(uploadId, previewId) {
+  const upload = document.getElementById(uploadId);
+  const input = upload.querySelector('input');
+  const preview = document.getElementById(previewId);
+  input.addEventListener('change', () => {
+    const file = input.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = e => { preview.src = e.target.result; preview.style.display = 'block'; };
+    reader.readAsDataURL(file);
+  });
+}
+function getFileDataUrl(uploadId) {
+  const preview = document.getElementById(uploadId.replace('upload','preview'));
+  return preview.src && preview.style.display !== 'none' ? preview.src : null;
+}
+
+setupUpload('i2i-upload','i2i-preview');
+setupUpload('edit-upload','edit-preview');
+setupUpload('i2v-upload','i2v-preview');
+
+// Text Chat
+$('chat-send').addEventListener('click', doChat);
+$('chat-input').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doChat(); } });
+$('chat-clear').addEventListener('click', () => {
+  document.getElementById('chatBox').innerHTML = '<div class="chat-msg assistant"><div class="role">AI</div><div class="content">你好！有什么可以帮你的？</div></div>';
+});
+
+async function doChat() {
+  const msg = $('chat-input').value.trim();
+  if (!msg) return;
+  $('chat-input').value = '';
+  const model = $('chat-model').value;
+  const temp = parseFloat($('chat-temp').value) || 0.7;
+  const system = $('chat-system').value.trim();
+  const box = $('chatBox');
+
+  box.innerHTML += `<div class="chat-msg user"><div class="role">你</div><div class="content">${msg}</div></div>`;
+  box.innerHTML += `<div class="chat-msg assistant"><div class="role">AI</div><div class="content"><em>思考中...</em></div></div>`;
+  box.scrollTop = box.scrollHeight;
+  $('chat-send').disabled = true;
+
+  try {
+    const messages = [];
+    if (system) messages.push({ role: 'system', content: system });
+    messages.push({ role: 'user', content: msg });
+
+    const res = await fetch(`${API_BASE}/chat/completions`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, messages, temperature: temp, stream: true })
+    });
+    const el = box.lastElementChild.querySelector('.content');
+    if (!res.ok) {
+      const data = await apiCall('/chat/completions', { model, messages, temperature: temp, stream: false });
+      el.textContent = data.choices[0].message.content;
+    } else {
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let full = '';
+      el.innerHTML = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const lines = decoder.decode(value, { stream: true }).split('\n').filter(l => l.startsWith('data: '));
+        for (const line of lines) {
+          const d = line.slice(6);
+          if (d === '[DONE]') break;
+          try { full += JSON.parse(d).choices?.[0]?.delta?.content || ''; el.textContent = full; } catch {}
+        }
+        box.scrollTop = box.scrollHeight;
+      }
+    }
+  } catch (err) { box.lastElementChild.querySelector('.content').textContent = `错误: ${err.message}`; }
+  $('chat-send').disabled = false;
+}
+
+// Image gen
+['t2i','i2i','edit'].forEach(prefix => {
+  $(`${prefix}-btn`).addEventListener('click', async () => {
+    const btn = $(`${prefix}-btn`); btn.disabled = true;
+    const result = $(`${prefix}-result`); result.innerHTML = '<p>生成中...</p>';
+    try {
+      const model = $(`${prefix}-model`).value;
+      const size = $(`${prefix}-size`).value;
+      let prompt = $(`${prefix}-prompt`).value;
+      if (prefix !== 't2i') {
+        const img = getFileDataUrl(`${prefix}-upload`);
+        if (img) prompt = '[参考图片] ' + prompt;
+      }
+      const n = prefix === 't2i' ? parseInt($('t2i-n').value) : 1;
+      const data = await apiCall('/images/generations', { model, prompt, size, n, response_format: 'url' });
+      result.innerHTML = '<div class="image-grid">' + data.data.map(d => `<img src="${d.url}" alt="result">`).join('') + '</div>';
+    } catch (err) { result.innerHTML = `<p style="color:#ff5c5c">${err.message}</p>`; }
+    btn.disabled = false;
+  });
+});
+
+// Video gen
+['t2v','i2v'].forEach(prefix => {
+  $(`${prefix}-btn`).addEventListener('click', async () => {
+    const btn = $(`${prefix}-btn`); btn.disabled = true;
+    const result = $(`${prefix}-result`);
+    result.innerHTML = '<p>提交视频任务...</p>';
+    try {
+      let prompt = $(`${prefix}-prompt`).value;
+      if (prefix === 'i2v') {
+        const img = getFileDataUrl('i2v-upload');
+        if (img) prompt = '[参考图片] ' + prompt;
+      }
+      const body = {
+        model: 'agnes-video-v2.0', prompt,
+        width: parseInt($(`${prefix}-width`).value),
+        height: parseInt($(`${prefix}-height`).value),
+        num_frames: parseInt($(`${prefix}-frames`).value) || 81,
+        frame_rate: parseInt($(`${prefix}-fps`).value) || 24
+      };
+      const res = await fetch('https://apihub.agnes-ai.com/v1/videos', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const vid = data.video_id || data.id;
+      result.innerHTML = `<p>任务已提交 (ID: ${vid})</p><div class="progress-bar"><div class="fill" style="width:0%"></div></div><p>等待生成...</p>`;
+      let attempts = 0;
+      const poll = setInterval(async () => {
+        attempts++;
+        try {
+          const pr = await fetch(`https://apihub.agnes-ai.com/agnesapi?video_id=${vid}`, {
+            headers: { 'Authorization': `Bearer ${apiKey}` }
+          });
+          if (pr.ok) {
+            const pd = await pr.json();
+            const fill = result.querySelector('.fill');
+            if (fill) fill.style.width = Math.min(attempts*8, 90)+'%';
+            if (pd.status === 'completed' || pd.status === 'succeeded' || pd.video_url) {
+              clearInterval(poll);
+              const url = pd.video_url || pd.url || pd.output;
+              if (url) {
+                result.innerHTML = `<p style="color:#4ade80;margin-bottom:8px">视频已生成!</p><video controls style="max-width:100%;border-radius:6px"><source src="${url}" type="video/mp4"></video><p style="margin-top:8px"><a href="${url}" target="_blank" style="color:var(--ai-accent)">下载</a></p>`;
+              } else { result.innerHTML = `<p>响应: ${JSON.stringify(pd)}</p>`; }
+              btn.disabled = false;
+            } else if (pd.status === 'failed') {
+              clearInterval(poll); result.innerHTML = '<p style="color:#ff5c5c">生成失败</p>'; btn.disabled = false;
+            }
+          }
+        } catch {}
+        if (attempts > 60) { clearInterval(poll); result.innerHTML += '<p>超时</p>'; btn.disabled = false; }
+      }, 3000);
+    } catch (err) { result.innerHTML = `<p style="color:#ff5c5c">${err.message}</p>`; btn.disabled = false; }
+  });
+});
+
+async function apiCall(endpoint, body) {
+  if (!apiKey) { toast('请先配置 API Key'); throw new Error('No key'); }
+  const res = await fetch(`${API_BASE}${endpoint}`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}: ${await res.text().catch(()=>'')}`);
+  return res.json();
+}
+</script>
+{{- end }}
