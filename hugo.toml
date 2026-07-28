@@ -1,0 +1,13 @@
+baseURL: "https://zengzhuoyue.github.io/"
+title: "卓越的博客"  # 可以改成你喜欢的名字
+theme: "PaperMod"
+
+params:
+  profileMode:
+    enabled: true
+    title: "zengzhuoyue"          # 主页显示的名字
+    subtitle: "AI Researcher | 人工智能研究生"  # 个人简介
+    imageUrl: ""                   # 头像（可选）
+  socialIcons:
+    - name: "github"
+      url: "https://github.com/zengzhuoyue"
