@@ -197,14 +197,7 @@ header.main-header, .header, nav, #top header { display: none !important; }
         <option value="512x512">512x512</option>
       </select>
     </div>
-    <div class="form-group">
-      <label>数量</label>
-      <select id="t2i-n">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="4">4</option>
-      </select>
-    </div>
+
   </div>
   <button class="btn" id="t2i-btn">生成图片</button>
   <div class="result" id="t2i-result"></div>
@@ -425,8 +418,11 @@ async function doChat() {
   const system = $('chat-system').value.trim();
   const box = $('chatBox');
 
-  box.innerHTML += `<div class="chat-msg user"><div class="role">你</div><div class="content">${msg}</div></div>`;
-  box.innerHTML += `<div class="chat-msg assistant"><div class="role">AI</div><div class="content"><em>思考中...</em></div></div>`;
+  const $msg = document.createElement('div'); $msg.className = 'chat-msg user';
+  $msg.innerHTML = '<div class="role">你</div><div class="content"></div>';
+  $msg.querySelector('.content').textContent = msg; box.appendChild($msg);
+  const $ai = document.createElement('div'); $ai.className = 'chat-msg assistant';
+  $ai.innerHTML = '<div class="role">AI</div><div class="content"><em>思考中...</em></div>'; box.appendChild($ai);
   box.scrollTop = box.scrollHeight;
   $('chat-send').disabled = true;
 
@@ -478,8 +474,7 @@ async function doChat() {
         const img = getFileDataUrl(`${prefix}-upload`);
         if (img) prompt = '[参考图片] ' + prompt;
       }
-      const n = prefix === 't2i' ? parseInt($('t2i-n').value) : 1;
-      const data = await apiCall('/images/generations', { model, prompt, size, n, response_format: 'url' });
+      const data = await apiCall('/images/generations', { model, prompt, size, n: 1 });
       result.innerHTML = '<div class="image-grid">' + data.data.map(d => `<img src="${d.url}" alt="result">`).join('') + '</div>';
     } catch (err) { result.innerHTML = `<p style="color:#ff5c5c">${err.message}</p>`; }
     btn.disabled = false;
